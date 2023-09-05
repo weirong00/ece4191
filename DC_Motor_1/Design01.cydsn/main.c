@@ -10,7 +10,7 @@
  * ========================================
 */
 
-// ECE4191 Group 3
+// ECE4191 Group 3 TEST
 
 #include "project.h"
 #include <stdio.h>
