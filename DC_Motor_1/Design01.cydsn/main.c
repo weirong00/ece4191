@@ -9,6 +9,9 @@
  *
  * ========================================
 */
+
+// ECE4191 Group 3
+
 #include "project.h"
 #include <stdio.h>
 #include <stdlib.h>
