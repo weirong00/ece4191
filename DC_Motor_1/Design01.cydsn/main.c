@@ -337,6 +337,77 @@ void forward2wall()
     reset_count();
 }
 
+void move2slit()
+{
+    double avg_count, avg_dist;
+    while (slit_detected == 0)
+    {
+        forward();
+        CyDelay(50);
+        while(Left_Echo_Read()==0)
+        {
+            Left_Trigger_Write(1);
+            CyDelayUs(10);
+            Left_Trigger_Write(0);
+        }
+    }
+    stop();
+    avg_count = (QuadDec_1_GetCounter()+QuadDec_2_GetCounter())/2;
+    avg_dist = avg_count*(M_PI*WHEEL_DIAMETER/3667);
+    if (direction ==0)
+    {
+        y_coord = y_coord + avg_dist;
+    }
+    else if (direction ==1)
+    {
+        
+        x_coord = x_coord + avg_dist;
+    }
+    else if (direction ==2)
+    {
+        
+        y_coord = y_coord - avg_dist;
+    }
+    else if (direction ==3)
+    {
+        
+        x_coord = x_coord - avg_dist;
+    }
+    reset_count();
+}
+
+void move2puck()
+{
+    double avg_count, avg_dist;
+    while (IR_input_Read() == 0)
+    {
+        forward();
+    }
+    stop();
+    avg_count = (QuadDec_1_GetCounter()+QuadDec_2_GetCounter())/2;
+    avg_dist = avg_count*(M_PI*WHEEL_DIAMETER/3667);
+    if (direction ==0)
+    {
+        y_coord = y_coord + avg_dist;
+    }
+    else if (direction ==1)
+    {
+        
+        x_coord = x_coord + avg_dist;
+    }
+    else if (direction ==2)
+    {
+        
+        y_coord = y_coord - avg_dist;
+    }
+    else if (direction ==3)
+    {
+        
+        x_coord = x_coord - avg_dist;
+    }
+    reset_count();
+}
+
 void F_or_R_1(int dist_count, int flag_FR)
 {
     double avg_count, avg_dist;
@@ -699,50 +770,40 @@ int main(void)
     CyDelay(500);
     
     // look for slit & adjust so that robot can fit through slit
-    while (step ==2)
+    while (step == 2)
     {
         /*flag_FR = 1;
         dist_trav = 200;
         dist_count = dist_trav*CM_COUNT_CONV;
         F_or_R_2(dist_count, flag_FR);*/
-        while (slit_detected == 0)
-        {
-            forward();
-        }
-        stop();
+        move2slit();
         dist_trav = 8.5;
         flag_FR = 1;
         move_fixed_dist(dist_trav, flag_FR);
         flag_CW = 0;
         CW(PT_TURN_COUNT, flag_CW); 
+        step++;
     }
     CyDelay(500);
     
     // move forward until puck is detected
-    while (step ==3)
+    while (step == 3)
     {
         /*flag_FR = 1;
         dist_trav = 10;
         dist_count = dist_trav*CM_COUNT_CONV;
         F_or_R_2(dist_count, flag_FR);*/
-        while (IR_input_Read()==0)
-        {
-            forward();
-        }
+        move2puck();
+        step++;
     }
     CyDelay(500);
     
     // color sensing
-    while (step ==4)
+    while (step == 4)
     {
-        flag_CW = 0;
-        CW(PT_TURN_COUNT,flag_CW);
+        Color_Sensing_Function();
     }
     CyDelay(500);
-    QuadDec_1_SetCounter(0);
-    QuadDec_2_SetCounter(0);
-    Count_Master = 0;
-    Count_Slave = 0;
     
     // move forward & pick up puck
     while (step ==5)
